@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_updateres" default="compile.module.updateres">
+  <dirname property="module.updateres.basedir" file="${ant.file.module_updateres}"/>
+  
+  <property name="module.jdk.home.updateres" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.updateres" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.updateres" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.updateres" value="-encoding UTF-8 -source 1.6 -target 1.6 ${compiler.args}"/>
+  
+  <property name="updateres.output.dir" value="${module.updateres.basedir}/out/production/UpdateRes"/>
+  <property name="updateres.testoutput.dir" value="${module.updateres.basedir}/out/test/UpdateRes"/>
+  
+  <path id="updateres.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="updateres.module.production.classpath">
+    <path refid="${module.jdk.classpath.updateres}"/>
+  </path>
+  
+  <path id="updateres.runtime.production.module.classpath">
+    <pathelement location="${updateres.output.dir}"/>
+  </path>
+  
+  <path id="updateres.module.classpath">
+    <path refid="${module.jdk.classpath.updateres}"/>
+    <pathelement location="${updateres.output.dir}"/>
+  </path>
+  
+  <path id="updateres.runtime.module.classpath">
+    <pathelement location="${updateres.testoutput.dir}"/>
+    <pathelement location="${updateres.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.updateres">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.updateres">
+    <patternset refid="excluded.from.module.updateres"/>
+  </patternset>
+  
+  <path id="updateres.module.sourcepath">
+    <dirset dir="${module.updateres.basedir}">
+      <include name="src"/>
+      <include name="resources"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.updateres" depends="compile.module.updateres.production,compile.module.updateres.tests" description="Compile module UpdateRes"/>
+  
+  <target name="compile.module.updateres.production" depends="register.custom.compilers" description="Compile module UpdateRes; production classes">
+    <mkdir dir="${updateres.output.dir}"/>
+    <javac2 destdir="${updateres.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.updateres}/javac">
+      <compilerarg line="${compiler.args.updateres}"/>
+      <bootclasspath refid="updateres.module.bootclasspath"/>
+      <classpath refid="updateres.module.production.classpath"/>
+      <src refid="updateres.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.updateres"/>
+    </javac2>
+    
+    <copy todir="${updateres.output.dir}">
+      <fileset dir="${module.updateres.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.updateres.basedir}/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.updateres.tests" depends="register.custom.compilers,compile.module.updateres.production" description="compile module UpdateRes; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.updateres" description="cleanup module">
+    <delete dir="${updateres.output.dir}"/>
+    <delete dir="${updateres.testoutput.dir}"/>
+  </target>
+  
+  <property name="updateres.plugin.path.jar" value="${module.updateres.basedir}/UpdateRes.jar"/>
+  
+  <!-- Build archive for plugin 'UpdateRes' -->
+  <target name="plugin.build.jar.updateres" depends="compile.module.updateres" description="Build plugin archive for module &#39;UpdateRes&#39;">
+    <jar destfile="${updateres.plugin.path.jar}" duplicate="preserve">
+      <zipfileset dir="${module.updateres.basedir}/out/production/UpdateRes"/>
+      <zipfileset file="${module.updateres.basedir}/resources/META-INF/plugin.xml" prefix="META-INF"/>
+      <manifest>
+        <attribute name="Created-By" value="IntelliJ IDEA"/>
+        <attribute name="Manifest-Version" value="1.0"/>
+      </manifest>
+    </jar>
+  </target>
+</project>
