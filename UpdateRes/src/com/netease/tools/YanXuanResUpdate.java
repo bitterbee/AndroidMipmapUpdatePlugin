@@ -92,8 +92,8 @@ public class YanXuanResUpdate extends AnAction {
             operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(yanxuanGuiPath, "mipmap-xxhdpi"), outputResPath));
             operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(yanxuanGuiPath, "mipmap-xxxhdpi"), outputResPath));
 
-            SelectImgDialog selectDlg = new SelectImgDialog(operations);
-            selectDlg.setVisible(true);
+            SelectImgDialog selectDlg = new SelectImgDialog(project, operations);
+            selectDlg.show();
 
 //            for (ImgOperation op : operations) {
 //                msg.append(op.run())
