@@ -24,6 +24,7 @@ public class ImagePanel extends JPanel {
     };
 
     public ImagePanel() {
+        setBackground(new Color(212, 212, 212));
     }
 
     public void setImgPath(String path, ImgStatus status) {

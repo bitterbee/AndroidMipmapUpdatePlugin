@@ -50,8 +50,6 @@ public class SelectImgDialog extends DialogWrapper implements SelectImgTree.ImgO
 
     private void createUIComponents() {
         imgShow = new ImagePanel();
-        imgShow.setBackground(Color.LIGHT_GRAY);
-        imgShow.setPreferredSize(new Dimension(300, 300));
 
         imgTree = new SelectImgTree(imgOperations);
         ((SelectImgTree) imgTree).setImgOperationSelectListener(this);
