@@ -1,4 +1,4 @@
-package com.netease.tools;
+package com.netease.tools.ui.select;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -10,14 +10,11 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.tree.*;
 import java.awt.*;
 import java.io.File;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class SelectImgDialog extends DialogWrapper implements TreeSelectionListener {
 
@@ -25,6 +22,9 @@ public class SelectImgDialog extends DialogWrapper implements TreeSelectionListe
     private JPanel contentPane;
     private JTree imgTree;
     private JPanel imgShow;
+
+    private Map<String, CategoryNodeData> categoryNodeDatas = new HashMap<String, CategoryNodeData>();
+    private Map<CategoryNodeData, List<ImgOperationNodeData>> nodeDatas = new HashMap<CategoryNodeData, List<ImgOperationNodeData>>();
 
     public SelectImgDialog(Project project, List<ImgOperation> ops) {
         super(project, true);
@@ -36,10 +36,36 @@ public class SelectImgDialog extends DialogWrapper implements TreeSelectionListe
 
         imgTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         imgTree.addTreeSelectionListener(this);
+        imgTree.setCellRenderer(new CheckBoxNodeRenderer());
+        imgTree.setCellEditor(new CheckBoxNodeEditor(nodeDatas, imgTree));
+        expandTree(imgTree);
 
         init();
     }
 
+    public static void expandTree(JTree tree) {
+        TreeNode root = (TreeNode) tree.getModel().getRoot();
+        expandAll(tree, new TreePath(root), true);
+    }
+
+    private static void expandAll(JTree tree, TreePath parent, boolean expand) {
+        // Traverse children
+        TreeNode node = (TreeNode) parent.getLastPathComponent();
+        if (node.getChildCount() >= 0) {
+            for (Enumeration e = node.children(); e.hasMoreElements(); ) {
+                TreeNode n = (TreeNode) e.nextElement();
+                TreePath path = parent.pathByAddingChild(n);
+                expandAll(tree, path, expand);
+            }
+        }
+
+        // Expansion or collapse must be done bottom-up
+        if (expand) {
+            tree.expandPath(parent);
+        } else {
+            tree.collapsePath(parent);
+        }
+    }
 
     @Nullable
     @Override
@@ -59,23 +85,21 @@ public class SelectImgDialog extends DialogWrapper implements TreeSelectionListe
             return;
 
         Object nodeInfo = node.getUserObject();
-        if (node.isLeaf() && nodeInfo instanceof ImgOperation) {
-            ImgOperation img = (ImgOperation) nodeInfo;
+        if (node.isLeaf() && nodeInfo instanceof ImgOperationNodeData) {
+            ImgOperation img = ((ImgOperationNodeData) nodeInfo).operation;
             showImage(img);
-        } else {
-            showImage(null);
         }
     }
 
     private void showImage(ImgOperation op) {
         if (op == null) {
-            ((ImagePanel) imgShow).setImgPath(null);
+            ((ImagePanel) imgShow).setImgPath(null, ImgStatus.NO_MODIFY);
             return;
         }
         if (op.status() == ImgStatus.DELETE) {
-            ((ImagePanel) imgShow).setImgPath(op.toPath());
+            ((ImagePanel) imgShow).setImgPath(op.toPath(), op.status());
         } else {
-            ((ImagePanel) imgShow).setImgPath(op.inPath());
+            ((ImagePanel) imgShow).setImgPath(op.inPath(), op.status());
         }
     }
 
@@ -91,14 +115,26 @@ public class SelectImgDialog extends DialogWrapper implements TreeSelectionListe
             String imgName = file.getName();
 
             DefaultMutableTreeNode categoryNode = categoryMap.get(categoryName);
+            CategoryNodeData cnd = categoryNodeDatas.get(categoryName);
             if (categoryNode == null) {
-                categoryNode = new DefaultMutableTreeNode(categoryName);
+                boolean selected = true;
+
+                cnd = new CategoryNodeData(categoryName, selected);
+                categoryNode = new DefaultMutableTreeNode(cnd);
                 categoryMap.put(categoryName, categoryNode);
                 top.add(categoryNode);
+
+                categoryNodeDatas.put(categoryName, cnd);
+                nodeDatas.put(cnd, new ArrayList<ImgOperationNodeData>());
             }
 
-            DefaultMutableTreeNode imgNode = new DefaultMutableTreeNode(op);
+            boolean selected = true;
+            ImgOperationNodeData iond = new ImgOperationNodeData(op, selected);
+            DefaultMutableTreeNode imgNode = new DefaultMutableTreeNode(iond);
             categoryNode.add(imgNode);
+
+            List<ImgOperationNodeData> ionds = nodeDatas.get(cnd);
+            ionds.add(iond);
         }
     }
 
@@ -106,5 +142,17 @@ public class SelectImgDialog extends DialogWrapper implements TreeSelectionListe
         imgShow = new ImagePanel();
         imgShow.setBackground(Color.LIGHT_GRAY);
         imgShow.setPreferredSize(new Dimension(300, 300));
+    }
+
+    public List<ImgOperation> getSelectedOps() {
+        List<ImgOperation> result = new ArrayList<ImgOperation>();
+        for (List<ImgOperationNodeData> v : nodeDatas.values()) {
+            for (ImgOperationNodeData data : v) {
+                if (data.selected) {
+                    result.add(data.operation);
+                }
+            }
+        }
+        return result;
     }
 }

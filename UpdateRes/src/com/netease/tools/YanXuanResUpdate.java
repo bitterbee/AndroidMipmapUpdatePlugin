@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.netease.tools.model.ImgStatus;
+import com.netease.tools.ui.select.SelectImgDialog;
 import com.netease.tools.util.CommandUtil;
 import com.netease.tools.util.ConfigUtil;
 import com.netease.tools.util.Fio;
@@ -95,10 +96,13 @@ public class YanXuanResUpdate extends AnAction {
             SelectImgDialog selectDlg = new SelectImgDialog(project, operations);
             selectDlg.show();
 
-//            for (ImgOperation op : operations) {
-//                msg.append(op.run())
-//                        .append("\n");
-//            }
+            if (selectDlg.isOK()) {
+                List<ImgOperation> selectOps = selectDlg.getSelectedOps();
+                for (ImgOperation op : selectOps) {
+                    msg.append(op.run())
+                            .append("\n");
+                }
+            }
         } catch (Exception e) {
             Messages.showMessageDialog(e.toString(), "Error", Messages.getErrorIcon());
             isSuccess = false;

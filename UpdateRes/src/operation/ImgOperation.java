@@ -15,6 +15,8 @@ public class ImgOperation {
     private String toPath;
     private ImgStatus status;
 
+    private String toFileName;
+
     public ImgOperation(String inPath, String toPath) {
         this.inPath = inPath;
         this.toPath = toPath;
@@ -24,16 +26,18 @@ public class ImgOperation {
         if (inFile.exists()) {
             if (compare(inFile, toFile)) {
                 status = ImgStatus.NO_MODIFY;
-            }
-            if (!toFile.exists()) {
+            } else if (!toFile.exists()) {
                 status = ImgStatus.ADD;
+            } else {
+                status = ImgStatus.MODIFY;
             }
-            status = ImgStatus.MODIFY;
         } else if (toFile.exists()) {
             status = ImgStatus.DELETE;
         } else {
             status = ImgStatus.NO_MODIFY;
         }
+
+        toFileName = toFile.getName();
     }
 
     public String inPath() {
@@ -108,6 +112,20 @@ public class ImgOperation {
                 return "no modify " + inPath + " to " + toPath;
         }
         return "unknown operation " + inPath + " to " + toPath;
+    }
+
+    public String toSimpleString() {
+        switch (status) {
+            case ADD:
+                return "add " + toFileName;
+            case MODIFY:
+                return "replace " + toFileName;
+            case DELETE:
+                return "delete " + toFileName;
+            case NO_MODIFY:
+                return "no modify " + toFileName;
+        }
+        return "unknown operation " + toFileName;
     }
 
     private boolean compare(File inFile, File outFile) {

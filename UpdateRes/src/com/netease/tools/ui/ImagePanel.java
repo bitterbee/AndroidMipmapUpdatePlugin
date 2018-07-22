@@ -1,7 +1,13 @@
 package com.netease.tools.ui;
 
+import com.netease.tools.model.ImgStatus;
+import javafx.scene.paint.*;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.Color;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by zyl06 on 2018/7/20.
@@ -9,13 +15,26 @@ import java.awt.*;
 public class ImagePanel extends JPanel {
 
     private Image image = null;
+    private Color color = Color.BLACK;
+
+    private static Map<ImgStatus, Color> COLOR_MAP = new HashMap<ImgStatus, Color>() {
+        {
+            put(ImgStatus.ADD, Color.GREEN);
+            put(ImgStatus.MODIFY, Color.BLACK);
+            put(ImgStatus.DELETE, Color.RED);
+        }
+    };
 
     public ImagePanel() {
     }
 
-    public void setImgPath(String path) {
+    public void setImgPath(String path, ImgStatus status) {
         if (path != null) {
-            image = new ImageIcon(path, "preview").getImage();
+            this.image = new ImageIcon(path, "preview").getImage();
+            color = COLOR_MAP.get(status);
+            if (color == null) {
+                color = Color.BLACK;
+            }
 //        setPreferredSize(new Dimension(image.getWidth(this), image.getHeight(this)));
             repaint();
         }
@@ -55,6 +74,9 @@ public class ImagePanel extends JPanel {
             }
 
             g.drawImage(image, x, y, dw, dh, this);
+
+            g.setColor(color);
+            g.draw3DRect(x, y, dw, dh, true);
         }
     }
 }
