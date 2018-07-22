@@ -37,7 +37,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="335e0" class="javax.swing.JTree" binding="imgTree">
+              <component id="335e0" class="javax.swing.JTree" binding="imgTree" custom-create="true">
                 <constraints/>
                 <properties>
                   <editable value="true"/>
