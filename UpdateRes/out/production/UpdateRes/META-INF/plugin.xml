@@ -1,12 +1,12 @@
 <idea-plugin version="2">
     <id>com.netease.tools</id>
-    <name>YXUpdateResPlugin</name>
+    <name>UpdateResPlugin</name>
     <version>1.0</version>
-    <vendor email="playfair@126.com" url="http://www.163.com">Netease</vendor>
+    <vendor email="playfair@126.com" url="http://www.163.com">zyl06</vendor>
 
     <description>
-        严选 Android Studio 工具集
-        1. 更新图片资源.
+        Android Studio 工具集
+        1. 同步图片资源.
         2. 删除 build 文件夹
     </description>
 
@@ -27,7 +27,7 @@
     </extensions>
 
     <actions>
-        <action id="yanxuan.tools.gui_plugin" class="com.netease.tools.YanXuanResUpdate" text="UpdateRes"
+        <action id="zyl06.tools.gui_plugin" class="com.netease.tools.MipmapUpdate" text="UpdateRes"
                 description="The action is used to yanxuan android programmers" icon="/res/template_icon.png">
             <add-to-group group-id="MainToolBar" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="meta alt U"/>
@@ -38,17 +38,17 @@
             <keyboard-shortcut keymap="$default" first-keystroke="meta alt D"/>
         </action>
 
-        <group id="yanxuan.tools" class="com.netease.tools.YanXuanToolsGroup" text="YanXuanTools" popup="true"
+        <group id="zyl06.tools" class="com.netease.tools.MipmapToolsGroup" text="Zyl06Tools" popup="true"
                icon="/res/template_icon.png">
             <add-to-group group-id="EditMenu" anchor="first"/>
 
-            <action id="yanxuan.tools.gui_plugin"
-                    class="com.netease.tools.YanXuanResUpdate" text="UpdateRes"
+            <action id="zyl06.tools.gui_plugin"
+                    class="com.netease.tools.MipmapUpdate" text="UpdateRes"
                     description="The action is used to yanxuan android programmers">
                 <keyboard-shortcut keymap="$default" first-keystroke="meta alt U"/>
             </action>
 
-            <action id="yanxuan.tools.del_build_plugin"
+            <action id="zyl06.tools.del_build_plugin"
                     class="com.netease.tools.CleanBuild"
                     text="DelBuild"
                     description="The action is used to delete build folders">

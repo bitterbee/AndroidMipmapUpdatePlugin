@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Created by zyl06 on 20/02/2017.
  */
-public class YanXuanResUpdate extends AnAction {
+public class MipmapUpdate extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
         // TODO: insert action logic here
@@ -33,15 +33,15 @@ public class YanXuanResUpdate extends AnAction {
 //                return;
 //            }
 
-            YanXuanGuiPathDialog guiPathDlg = new YanXuanGuiPathDialog(project);
-            guiPathDlg.show();
+            MipmapPathDialog mipmapGitPathDlg = new MipmapPathDialog(project);
+            mipmapGitPathDlg.show();
 
-            if (guiPathDlg.getExitCode() != DialogWrapper.OK_EXIT_CODE) {
+            if (mipmapGitPathDlg.getExitCode() != DialogWrapper.OK_EXIT_CODE) {
                 return;
             }
 
             try {
-                startUpdateResProcess(project, guiPathDlg.getGitPath(), guiPathDlg.getYanXuanGuiPath());
+                startUpdateResProcess(project, mipmapGitPathDlg.getGitPath(), mipmapGitPathDlg.getMipmapGitPath());
             } catch (Exception e) {
                 e.printStackTrace();
                 String error = e.getMessage() + "   \n  " + e.getCause();
@@ -55,9 +55,9 @@ public class YanXuanResUpdate extends AnAction {
         }
     }
 
-    private void startUpdateResProcess(Project project, String gitPath, String yanxuanGuiPath) {
-        if (TextUtils.isEmpty(yanxuanGuiPath)) {
-            Messages.showMessageDialog("wrong yanxuan_gui path", "Error", Messages.getErrorIcon());
+    private void startUpdateResProcess(Project project, String gitPath, String mipmapPath) {
+        if (TextUtils.isEmpty(mipmapPath)) {
+            Messages.showMessageDialog("wrong mipmap_git path", "Error", Messages.getErrorIcon());
             return;
         }
         if (TextUtils.isEmpty(gitPath)) {
@@ -65,10 +65,10 @@ public class YanXuanResUpdate extends AnAction {
             return;
         }
 
-        ConfigUtil.setYanXuanGuiPath(yanxuanGuiPath);
+        ConfigUtil.setMipmapGitPath(mipmapPath);
         ConfigUtil.setGitPath(gitPath);
 
-        Process process = doGitPullProcess(project, gitPath, yanxuanGuiPath);
+        Process process = doGitPullProcess(project, gitPath, mipmapPath);
         if (process == null) {
             return;
         }
@@ -82,16 +82,16 @@ public class YanXuanResUpdate extends AnAction {
             String outputResPath = getOutputResPath(project);
 
             List<ImgOperation> operations = new ArrayList<ImgOperation>();
-            operations.addAll(getUpdateMipmapOperations(project, yanxuanGuiPath, "mipmap-mdpi"));
-            operations.addAll(getUpdateMipmapOperations(project, yanxuanGuiPath, "mipmap-hdpi"));
-            operations.addAll(getUpdateMipmapOperations(project, yanxuanGuiPath, "mipmap-xhdpi"));
-            operations.addAll(getUpdateMipmapOperations(project, yanxuanGuiPath, "mipmap-xxhdpi"));
-            operations.addAll(getUpdateMipmapOperations(project, yanxuanGuiPath, "mipmap-xxxhdpi"));
-            operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(yanxuanGuiPath, "mipmap-mdpi"), outputResPath));
-            operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(yanxuanGuiPath, "mipmap-hdpi"), outputResPath));
-            operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(yanxuanGuiPath, "mipmap-xhdpi"), outputResPath));
-            operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(yanxuanGuiPath, "mipmap-xxhdpi"), outputResPath));
-            operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(yanxuanGuiPath, "mipmap-xxxhdpi"), outputResPath));
+            operations.addAll(getUpdateMipmapOperations(project, mipmapPath, "mipmap-mdpi"));
+            operations.addAll(getUpdateMipmapOperations(project, mipmapPath, "mipmap-hdpi"));
+            operations.addAll(getUpdateMipmapOperations(project, mipmapPath, "mipmap-xhdpi"));
+            operations.addAll(getUpdateMipmapOperations(project, mipmapPath, "mipmap-xxhdpi"));
+            operations.addAll(getUpdateMipmapOperations(project, mipmapPath, "mipmap-xxxhdpi"));
+            operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(mipmapPath, "mipmap-mdpi"), outputResPath));
+            operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(mipmapPath, "mipmap-hdpi"), outputResPath));
+            operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(mipmapPath, "mipmap-xhdpi"), outputResPath));
+            operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(mipmapPath, "mipmap-xxhdpi"), outputResPath));
+            operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(mipmapPath, "mipmap-xxxhdpi"), outputResPath));
 
             SelectImgDialog selectDlg = new SelectImgDialog(project, operations);
             selectDlg.show();
@@ -110,7 +110,7 @@ public class YanXuanResUpdate extends AnAction {
 
         msg.append("\n");
 
-        YXConsole.show(project, process, msg.toString());
+        NEConsole.show(project, process, msg.toString());
 
         if (isSuccess) {
             writeToFile(project, msg.toString());
@@ -122,19 +122,19 @@ public class YanXuanResUpdate extends AnAction {
         Fio.writeToFile(filePath, msg, true);
     }
 
-    private Process doGitPullProcess(Project project, String gitCmd, String yanxuanGuiPath) {
+    private Process doGitPullProcess(Project project, String gitCmd, String mipmapGitPath) {
         if (TextUtils.isEmpty(gitCmd)) {
             Messages.showMessageDialog("git uninstall", "Error", Messages.getErrorIcon());
             return null;
         }
 
-        if (TextUtils.isEmpty(yanxuanGuiPath)) {
-            Messages.showMessageDialog("wrong yanxuan_gui path", "Error", Messages.getErrorIcon());
+        if (TextUtils.isEmpty(mipmapGitPath)) {
+            Messages.showMessageDialog("wrong mipmap_git path", "Error", Messages.getErrorIcon());
             return null;
         }
 
 
-        String commandLine = "cd " + yanxuanGuiPath + "\n";
+        String commandLine = "cd " + mipmapGitPath + "\n";
         commandLine += gitCmd + " pull";
 
         String[] cmds = CommandUtil.getSystemCmds(commandLine);
@@ -155,14 +155,14 @@ public class YanXuanResUpdate extends AnAction {
             return null;
         }
 
-        YXConsole.show(project, process, cmds.toString());
+        NEConsole.show(project, process, cmds.toString());
         return process;
     }
 
-    private List<ImgOperation> getUpdateMipmapOperations(Project project, String yanxuanGuiPath, String mipmap) throws Exception {
+    private List<ImgOperation> getUpdateMipmapOperations(Project project, String mipmapGitPath, String mipmap) throws Exception {
         List<ImgOperation> result = new ArrayList<ImgOperation>();
 
-        String inMipmapPath = getInputMipmapPath(yanxuanGuiPath, mipmap);
+        String inMipmapPath = getInputMipmapPath(mipmapGitPath, mipmap);
         String toMipmapPath = getOutputMipmapPath(project, mipmap);
         makeDirExist(toMipmapPath);
 
@@ -261,8 +261,8 @@ public class YanXuanResUpdate extends AnAction {
         return path.endsWith(".png") || path.endsWith(".jpg") || path.endsWith(".jpeg");
     }
 
-    private String getInputMipmapPath(String yanxuanGuiPath, String mipmap) {
-        return yanxuanGuiPath + File.separator + "android" + File.separator + mipmap;
+    private String getInputMipmapPath(String mipmapGitPath, String mipmap) {
+        return mipmapGitPath + File.separator + "android" + File.separator + mipmap;
     }
 
     private String getOutputResPath(Project project) {

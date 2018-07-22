@@ -31,7 +31,7 @@ public class CheckBoxNodeRenderer implements TreeCellRenderer {
         JLabel l = (JLabel) renderer.getTreeCellRendererComponent(
                 tree, value, selected, expanded, leaf, row, hasFocus);
         if (value instanceof DefaultMutableTreeNode) {
-//            check.setEnabled(tree.isEnabled());
+            check.setEnabled(tree.isEnabled());
             check.setFont(tree.getFont());
             Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
             if (userObject instanceof ImgOperationNodeData) {

@@ -17,16 +17,16 @@ import javax.swing.*;
 /**
  * Created by zyl06 on 7/25/16.
  */
-public class YanXuanGuiPathDialog extends DialogWrapper {
+public class MipmapPathDialog extends DialogWrapper {
     private Project project;
     private JPanel contentPane;
-    private TextFieldWithBrowseButton yxguiTextField;
+    private TextFieldWithBrowseButton guiTextField;
     private TextFieldWithBrowseButton gitTextField;
 
-    public YanXuanGuiPathDialog(@Nullable Project project) {
+    public MipmapPathDialog(@Nullable Project project) {
         super(project, true);
         this.project = project;
-        setTitle("yanxuan_gui 目录");
+        setTitle("mipmap_git 目录");
         init();
     }
 
@@ -36,24 +36,24 @@ public class YanXuanGuiPathDialog extends DialogWrapper {
         setModal(true);
 
         FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
-        yxguiTextField.addBrowseFolderListener("Please choose yanxuan_gui path", "The path where yanxuan_gui is cloned", null, descriptor);
-        myPreferredFocusedComponent = yxguiTextField;
+        guiTextField.addBrowseFolderListener("Please choose mipmap_git path", "The path where mipmap_git is cloned", null, descriptor);
+        myPreferredFocusedComponent = guiTextField;
 
         String gitPath = CommandUtil.getGitCommandPath(project);
         if (!TextUtils.isEmpty(gitPath)) {
             gitTextField.setText(gitPath);
         }
 
-        String yxguiPath = ConfigUtil.getYanXuanGuiPath();
-        if (!TextUtils.isEmpty(yxguiPath)) {
-            yxguiTextField.setText(yxguiPath);
+        String mipmapGitPath = ConfigUtil.getMipmapGitPath();
+        if (!TextUtils.isEmpty(mipmapGitPath)) {
+            guiTextField.setText(mipmapGitPath);
         }
 
         return contentPane;
     }
 
-    public String getYanXuanGuiPath() {
-        return yxguiTextField.getText().trim();
+    public String getMipmapGitPath() {
+        return guiTextField.getText().trim();
     }
 
     public String getGitPath() {
@@ -61,9 +61,9 @@ public class YanXuanGuiPathDialog extends DialogWrapper {
     }
 
     protected void doOKAction() {
-        if (!PathUtil.isPathValid(getYanXuanGuiPath())) {
+        if (!PathUtil.isPathValid(getMipmapGitPath())) {
 
-            DialogEarthquakeShaker.shake((JDialog)YanXuanGuiPathDialog.this.getPeer().getWindow());
+            DialogEarthquakeShaker.shake((JDialog)MipmapPathDialog.this.getPeer().getWindow());
             return;
         }
         super.doOKAction();

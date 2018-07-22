@@ -12,8 +12,8 @@ import com.intellij.openapi.wm.ToolWindowManager;
 /**
  * Created by zyl06 on 7/25/16.
  */
-public class YXConsole {
-    private static final String ID = "YanXuan Console";
+public class NEConsole {
+    private static final String ID = "Mipmap Console";
 
     private static ConsoleView sConsoleView;
 

@@ -117,15 +117,15 @@ public class ImgOperation {
     public String toSimpleString() {
         switch (status) {
             case ADD:
-                return "add " + toFileName;
+                return "A-" + toFileName;
             case MODIFY:
-                return "replace " + toFileName;
+                return "M-" + toFileName;
             case DELETE:
-                return "delete " + toFileName;
+                return "D-" + toFileName;
             case NO_MODIFY:
-                return "no modify " + toFileName;
+                return "no modify-" + toFileName;
         }
-        return "unknown operation " + toFileName;
+        return "unknown operation-" + toFileName;
     }
 
     private boolean compare(File inFile, File outFile) {

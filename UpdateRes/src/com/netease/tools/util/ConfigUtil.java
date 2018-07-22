@@ -22,13 +22,13 @@ public class ConfigUtil {
         }
     }
 
-    public static String getYanXuanGuiPath() {
-        return getConfig("yanxuan_gui_path");
+    public static String getMipmapGitPath() {
+        return getConfig("mipmap_git_path");
     }
 
-    public static void setYanXuanGuiPath(String path) {
+    public static void setMipmapGitPath(String path) {
         if (!TextUtils.isEmpty(path)) {
-            setConfig("yanxuan_gui_path", path);
+            setConfig("mipmap_git_path", path);
         }
     }
 
@@ -75,10 +75,10 @@ public class ConfigUtil {
     }
 
     private static String getConfigPath_Windows() {
-        return PathUtil.get("c:Users", "Public", "yanxuan_plugin.config");
+        return PathUtil.get("c:Users", "Public", "netease_plugin.config");
     }
 
     private static String getConfigPath_Mac() {
-        return PathUtil.get("/Users/zyl06/config", "yanxuan_plugin.config");
+        return PathUtil.get("/Users/zyl06/config", "netease_plugin.config");
     }
 }

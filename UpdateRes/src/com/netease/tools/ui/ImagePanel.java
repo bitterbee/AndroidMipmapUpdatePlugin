@@ -1,11 +1,9 @@
 package com.netease.tools.ui;
 
 import com.netease.tools.model.ImgStatus;
-import javafx.scene.paint.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 

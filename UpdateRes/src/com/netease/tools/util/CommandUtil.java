@@ -2,7 +2,7 @@ package com.netease.tools.util;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.netease.tools.YXConsole;
+import com.netease.tools.NEConsole;
 import org.apache.http.util.TextUtils;
 
 import java.io.File;
@@ -35,7 +35,7 @@ public class CommandUtil {
             Messages.showMessageDialog(error, "Error", Messages.getErrorIcon());
         }
 
-        YXConsole.show(project, process, cmd);
+        NEConsole.show(project, process, cmd);
     }
 
     public static void runSytemCommand(Project project, String cmd, boolean isWait) {
@@ -58,7 +58,7 @@ public class CommandUtil {
             Messages.showMessageDialog(error, "Error", Messages.getErrorIcon());
         }
 
-        YXConsole.show(project, process, cmds.toString());
+        NEConsole.show(project, process, cmds.toString());
     }
 
     public static String[] getSystemCmds(String cmd) {
@@ -197,7 +197,7 @@ public class CommandUtil {
 
             System.out.print("process exitValue = " + exitValue);
 
-//            YXConsole.show(project, process, cmd);
+//            NEConsole.show(project, process, cmd);
         } catch (Exception e) {
             e.printStackTrace();
             Messages.showMessageDialog(e.toString(), "Error", Messages.getErrorIcon());
