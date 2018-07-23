@@ -51,9 +51,11 @@
 3. 支持开发选择和取消改动的图片操作，并同步到 app 工程
 
 ![ks_manage_res_work_flow_plugin_new.jpg](https://upload-images.jianshu.io/upload_images/2282248-1b096df9293e623e.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 >插件安装界面
 
-![gif](https://upload-images.jianshu.io/upload_images/2282248-cbb8f0aab3f55594.gif?imageMogr2/auto-orient/strip)
+![img](https://upload-images.jianshu.io/upload_images/2282248-cbb8f0aab3f55594.gif?imageMogr2/auto-orient/strip)
+
 >插件操作示例
 
 Android Studio 控制台输出文本示例：
