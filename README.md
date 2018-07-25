@@ -1,4 +1,4 @@
-# AndroidResUpdatePlugin
+# AndroidMipmapUpdatePlugin
 
 ## 0 背景
 
@@ -81,3 +81,17 @@ add /Users/.../yanxuan_gui/android/mipmap-xxhdpi/coupon/semi_circle.png to /User
 ![ks_manage_res_new_work_flow.png](https://upload-images.jianshu.io/upload_images/2282248-0a7702970e12b510.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 以上流程，相比原有的图片管理方式，更加简单高效且易于维护
+
+## License
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
