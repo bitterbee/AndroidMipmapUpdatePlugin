@@ -43,7 +43,7 @@
             <add-to-group group-id="EditMenu" anchor="first"/>
 
             <action id="zyl06.tools.gui_plugin"
-                    class="com.netease.tools.MipmapUpdate" text="UpdateRes"
+                    class="com.netease.tools.MipmapUpdate" text="UpdateImg"
                     description="The action is used to yanxuan android programmers">
                 <keyboard-shortcut keymap="$default" first-keystroke="meta alt U"/>
             </action>
@@ -54,6 +54,7 @@
                     description="The action is used to delete build folders">
                 <keyboard-shortcut keymap="$default" first-keystroke="meta alt D"/>
             </action>
+
 
         </group>
     </actions>

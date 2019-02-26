@@ -1,4 +1,4 @@
-package operation;
+package com.netease.tools.operation;
 
 import com.netease.tools.model.ImgStatus;
 import com.netease.tools.util.Fio;
@@ -11,13 +11,15 @@ import java.io.IOException;
  */
 public class ImgOperation {
 
+    private String projPath; // app, businessmodule/aicustomer 等工程相对路径
     private String inPath;
     private String toPath;
     private ImgStatus status;
 
     private String toFileName;
 
-    public ImgOperation(String inPath, String toPath) {
+    public ImgOperation(String projPath, String inPath, String toPath) {
+        this.projPath = projPath;
         this.inPath = inPath;
         this.toPath = toPath;
 
@@ -38,6 +40,10 @@ public class ImgOperation {
         }
 
         toFileName = toFile.getName();
+    }
+
+    public String projPath() {
+        return projPath;
     }
 
     public String inPath() {
@@ -111,7 +117,7 @@ public class ImgOperation {
             case NO_MODIFY:
                 return "no modify " + inPath + " to " + toPath;
         }
-        return "unknown operation " + inPath + " to " + toPath;
+        return "unknown com.netease.tools.operation " + inPath + " to " + toPath;
     }
 
     public String toSimpleString() {
@@ -125,7 +131,7 @@ public class ImgOperation {
             case NO_MODIFY:
                 return "no modify-" + toFileName;
         }
-        return "unknown operation-" + toFileName;
+        return "unknown com.netease.tools.operation-" + toFileName;
     }
 
     private boolean compare(File inFile, File outFile) {

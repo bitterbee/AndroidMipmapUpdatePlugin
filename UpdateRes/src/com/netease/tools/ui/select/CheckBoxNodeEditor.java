@@ -1,5 +1,7 @@
 package com.netease.tools.ui.select;
 
+import com.netease.tools.ui.node.*;
+
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -9,10 +11,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.util.EventObject;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by zyl06 on 2018/7/21.
@@ -24,13 +23,10 @@ public class CheckBoxNodeEditor extends AbstractCellEditor implements TreeCellEd
     private final JPanel panel = new JPanel(new BorderLayout());
     private Object userObj;
 
-    private Map<CategoryNodeData, List<ImgOperationNodeData>> nodeDatas = new HashMap<CategoryNodeData, List<ImgOperationNodeData>>();
     private JTree imgTree;
 
-    public CheckBoxNodeEditor(Map<CategoryNodeData, List<ImgOperationNodeData>> data,
-                              JTree imgTree) {
+    public CheckBoxNodeEditor(JTree imgTree) {
         super();
-        this.nodeDatas = data;
         check.addActionListener(this);
         panel.setFocusable(false);
         panel.setRequestFocusEnabled(false);
@@ -45,41 +41,26 @@ public class CheckBoxNodeEditor extends AbstractCellEditor implements TreeCellEd
     public void actionPerformed(ActionEvent e) {
 //                    stopCellEditing();
         boolean selected = check.isSelected();
-        if (userObj instanceof ImgOperationNodeData) {
-            ((ImgOperationNodeData) userObj).selected = selected;
-
-            CategoryNodeData parentCnd = null;
-            List<ImgOperationNodeData> ionds = null;
-            for (CategoryNodeData cnd : CheckBoxNodeEditor.this.nodeDatas.keySet()) {
-                ionds = CheckBoxNodeEditor.this.nodeDatas.get(cnd);
-                if (ionds.contains(userObj)) {
-                    parentCnd = cnd;
-                    break;
-                }
-            }
-
-            if (parentCnd != null) {
-                for (ImgOperationNodeData iond : ionds) {
-                    if (selected != iond.selected) {
-                        return;
-                    }
-                }
-                parentCnd.selected = selected;
-                imgTree.updateUI();
-            }
-
-        } else if (userObj instanceof CategoryNodeData) {
-            ((CategoryNodeData) userObj).selected = selected;
-
-            java.util.List<ImgOperationNodeData> ionds = CheckBoxNodeEditor.this.nodeDatas.get(userObj);
-            if (ionds != null) {
-                for (ImgOperationNodeData iond : ionds) {
-                    iond.selected = selected;
-                }
-            }
-
-            imgTree.updateUI();
+        if (!(userObj instanceof DataNode)) {
+            return;
         }
+
+        DataNode node = (DataNode) userObj;
+        node.setSelected(selected);
+
+        DataNode parent = node.parent();
+        if (parent != null) {
+            java.util.List<DataNode> children = parent.children();
+            for (DataNode child : children) {
+                if (selected != child.isSelected()) {
+                    imgTree.updateUI();
+                    return;
+                }
+            }
+            parent.setSelected(selected);
+        }
+
+        imgTree.updateUI();
     }
 
     @Override
@@ -93,15 +74,12 @@ public class CheckBoxNodeEditor extends AbstractCellEditor implements TreeCellEd
         if (value instanceof DefaultMutableTreeNode) {
             Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
             this.userObj = userObject;
-            if (userObject instanceof ImgOperationNodeData) {
-                ImgOperationNodeData node = (ImgOperationNodeData) userObject;
-                label.setText(node.toString());
-                check.setSelected(node.selected);
-            } else if (userObject instanceof CategoryNodeData) {
-                CategoryNodeData node = (CategoryNodeData) userObject;
-                label.setText(node.name);
-                check.setSelected(node.selected);
+            if (userObject instanceof DataNode) {
+                Data data = ((DataNode) userObject).data();
+                label.setText(data.toString());
+                check.setSelected(data.selected);
             }
+
             panel.add(label);
             return panel;
         }

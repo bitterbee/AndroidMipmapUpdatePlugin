@@ -52,16 +52,16 @@ public class MipmapPathDialog extends DialogWrapper {
         return contentPane;
     }
 
-    public String getMipmapGitPath() {
+    public String getGitPath() {
         return guiTextField.getText().trim();
     }
 
-    public String getGitPath() {
+    public String getGitCmdPath() {
         return gitTextField.getText().trim();
     }
 
     protected void doOKAction() {
-        if (!PathUtil.isPathValid(getMipmapGitPath())) {
+        if (!PathUtil.isPathValid(getGitPath())) {
 
             DialogEarthquakeShaker.shake((JDialog)MipmapPathDialog.this.getPeer().getWindow());
             return;

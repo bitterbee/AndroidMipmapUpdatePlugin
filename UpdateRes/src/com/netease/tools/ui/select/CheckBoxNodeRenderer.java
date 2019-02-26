@@ -1,5 +1,8 @@
 package com.netease.tools.ui.select;
 
+import com.netease.tools.ui.node.Data;
+import com.netease.tools.ui.node.DataNode;
+
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -34,15 +37,14 @@ public class CheckBoxNodeRenderer implements TreeCellRenderer {
             check.setEnabled(tree.isEnabled());
             check.setFont(tree.getFont());
             Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
-            if (userObject instanceof ImgOperationNodeData) {
-                ImgOperationNodeData node = (ImgOperationNodeData) userObject;
-                l.setText(node.toString());
-                check.setSelected(node.selected);
-            } else if (userObject instanceof CategoryNodeData) {
-                check.setSelected(((CategoryNodeData) userObject).selected);
+            if (userObject instanceof DataNode) {
+                Data data = ((DataNode) userObject).data();
+                l.setText(data.toString());
+                check.setSelected(data.selected);
             } else {
                 return l;
             }
+
             p.add(l);
             return p;
         }

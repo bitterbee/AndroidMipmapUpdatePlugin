@@ -7,11 +7,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.netease.tools.model.ImgStatus;
+import com.netease.tools.operation.RemoveImgOperationFactory;
+import com.netease.tools.operation.UpdateImgOperationFactory;
 import com.netease.tools.ui.select.SelectImgDialog;
 import com.netease.tools.util.CommandUtil;
 import com.netease.tools.util.ConfigUtil;
 import com.netease.tools.util.Fio;
-import operation.ImgOperation;
+import com.netease.tools.util.ProjectUtil;
+import com.netease.tools.operation.ImgOperation;
 import org.apache.http.util.TextUtils;
 
 import java.io.File;
@@ -41,7 +44,7 @@ public class MipmapUpdate extends AnAction {
             }
 
             try {
-                startUpdateResProcess(project, mipmapGitPathDlg.getGitPath(), mipmapGitPathDlg.getMipmapGitPath());
+                startUpdateResProcess(project, mipmapGitPathDlg.getGitCmdPath(), mipmapGitPathDlg.getGitPath());
             } catch (Exception e) {
                 e.printStackTrace();
                 String error = e.getMessage() + "   \n  " + e.getCause();
@@ -55,20 +58,20 @@ public class MipmapUpdate extends AnAction {
         }
     }
 
-    private void startUpdateResProcess(Project project, String gitPath, String mipmapPath) {
-        if (TextUtils.isEmpty(mipmapPath)) {
+    private void startUpdateResProcess(Project project, String gitCmd, String gitPath) {
+        if (TextUtils.isEmpty(gitPath)) {
             Messages.showMessageDialog("wrong mipmap_git path", "Error", Messages.getErrorIcon());
             return;
         }
-        if (TextUtils.isEmpty(gitPath)) {
+        if (TextUtils.isEmpty(gitCmd)) {
             Messages.showMessageDialog("wrong git path", "Error", Messages.getErrorIcon());
             return;
         }
 
-        ConfigUtil.setMipmapGitPath(mipmapPath);
-        ConfigUtil.setGitPath(gitPath);
+        ConfigUtil.setMipmapGitPath(gitPath);
+        ConfigUtil.setGitCmdPath(gitCmd);
 
-        Process process = doGitPullProcess(project, gitPath, mipmapPath);
+        Process process = doGitPullProcess(project, gitCmd, gitPath);
         if (process == null) {
             return;
         }
@@ -79,19 +82,16 @@ public class MipmapUpdate extends AnAction {
 
         boolean isSuccess = true;
         try {
-            String outputResPath = getOutputResPath(project);
-
+            List<String> subProjPaths = ProjectUtil.findSubProjects(project);
             List<ImgOperation> operations = new ArrayList<ImgOperation>();
-            operations.addAll(getUpdateMipmapOperations(project, mipmapPath, "mipmap-mdpi"));
-            operations.addAll(getUpdateMipmapOperations(project, mipmapPath, "mipmap-hdpi"));
-            operations.addAll(getUpdateMipmapOperations(project, mipmapPath, "mipmap-xhdpi"));
-            operations.addAll(getUpdateMipmapOperations(project, mipmapPath, "mipmap-xxhdpi"));
-            operations.addAll(getUpdateMipmapOperations(project, mipmapPath, "mipmap-xxxhdpi"));
-            operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(mipmapPath, "mipmap-mdpi"), outputResPath));
-            operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(mipmapPath, "mipmap-hdpi"), outputResPath));
-            operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(mipmapPath, "mipmap-xhdpi"), outputResPath));
-            operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(mipmapPath, "mipmap-xxhdpi"), outputResPath));
-            operations.addAll(getRemoveUnusedImagesOperations(getInputMipmapPath(mipmapPath, "mipmap-xxxhdpi"), outputResPath));
+
+            for (String subProjPath : subProjPaths) {
+                UpdateImgOperationFactory updateFactory = new UpdateImgOperationFactory(project, subProjPath, gitPath);
+                operations.addAll(updateFactory.create());
+
+                RemoveImgOperationFactory removeFactory = new RemoveImgOperationFactory(project, subProjPath, gitPath);
+                operations.addAll(removeFactory.create());
+            }
 
             SelectImgDialog selectDlg = new SelectImgDialog(project, operations);
             selectDlg.show();
@@ -122,19 +122,19 @@ public class MipmapUpdate extends AnAction {
         Fio.writeToFile(filePath, msg, true);
     }
 
-    private Process doGitPullProcess(Project project, String gitCmd, String mipmapGitPath) {
+    private Process doGitPullProcess(Project project, String gitCmd, String gitPath) {
         if (TextUtils.isEmpty(gitCmd)) {
             Messages.showMessageDialog("git uninstall", "Error", Messages.getErrorIcon());
             return null;
         }
 
-        if (TextUtils.isEmpty(mipmapGitPath)) {
+        if (TextUtils.isEmpty(gitPath)) {
             Messages.showMessageDialog("wrong mipmap_git path", "Error", Messages.getErrorIcon());
             return null;
         }
 
 
-        String commandLine = "cd " + mipmapGitPath + "\n";
+        String commandLine = "cd " + gitPath + "\n";
         commandLine += gitCmd + " pull";
 
         String[] cmds = CommandUtil.getSystemCmds(commandLine);
@@ -157,132 +157,5 @@ public class MipmapUpdate extends AnAction {
 
         NEConsole.show(project, process, cmds.toString());
         return process;
-    }
-
-    private List<ImgOperation> getUpdateMipmapOperations(Project project, String mipmapGitPath, String mipmap) throws Exception {
-        List<ImgOperation> result = new ArrayList<ImgOperation>();
-
-        String inMipmapPath = getInputMipmapPath(mipmapGitPath, mipmap);
-        String toMipmapPath = getOutputMipmapPath(project, mipmap);
-        makeDirExist(toMipmapPath);
-
-        File inMipmapFile = new File(inMipmapPath);
-        if (!inMipmapFile.exists()) {
-            String msg = "input path " + inMipmapPath + " not exists";
-            throw new Exception(msg);
-        }
-
-        if (!inMipmapFile.isDirectory()) {
-            String msg = "input path " + inMipmapPath + " is not directory";
-            throw new Exception(msg);
-        }
-
-        File[] modules = inMipmapFile.listFiles();
-        if (modules != null) {
-            for (File module : modules) {
-                result.addAll(getUpdateMipmapModuleOperations(toMipmapPath, module));
-            }
-        }
-
-        return result;
-    }
-
-    private List<ImgOperation> getUpdateMipmapModuleOperations(String toMipmapPath, File module) throws Exception {
-        List<ImgOperation> result = new ArrayList<ImgOperation>();
-
-        if (!module.isDirectory()) {
-            return result;
-        }
-
-        File[] subImages = module.listFiles();
-        if (subImages == null) {
-            return result;
-        }
-
-        for (File subImage : subImages) {
-            if (isPhoto(subImage.getName())) {
-                String inPath = subImage.getAbsolutePath();
-                String toPath = toMipmapPath + File.separator + module.getName() + "_" + subImage.getName();
-                ImgOperation op = new ImgOperation(inPath, toPath);
-                if (op.status() == ImgStatus.ADD || op.status() == ImgStatus.MODIFY) {
-                    result.add(op);
-                }
-            }
-        }
-
-        return result;
-    }
-
-    private List<ImgOperation> getRemoveUnusedImagesOperations(String inMipmapPath, String toResPath) throws Exception {
-        List<ImgOperation> result = new ArrayList<ImgOperation>();
-
-        File inMipmapFile = new File(inMipmapPath);
-        if (!inMipmapFile.exists()) {
-            return result;
-        }
-
-        String toMipmapPath = toResPath + File.separator + inMipmapFile.getName();
-        File toMipmapFile = new File(toMipmapPath);
-        if (!toMipmapFile.exists()) {
-            return result;
-        }
-
-        File[] toFiles = toMipmapFile.listFiles();
-        if (toFiles == null) {
-            return result;
-        }
-
-        for (File toFile : toFiles) {
-            String toName = toFile.getName();
-            if (!isPhoto(toName)) {
-                continue;
-            }
-
-            String[] parts = toName.split("[_]", 2);
-            if (parts.length == 2) {
-                String module = parts[0];
-                String inName = parts[1];
-                String inPath = inMipmapPath + File.separator + module + File.separator + inName;
-                File inFile = new File(inPath);
-                if (!inFile.exists()) {
-                    result.add(new ImgOperation(inPath, toFile.getAbsolutePath()));
-                }
-            }
-        }
-
-        return result;
-    }
-
-    private boolean isPhoto(String path) {
-        if (path == null) {
-            return false;
-        }
-
-        return path.endsWith(".png") || path.endsWith(".jpg") || path.endsWith(".jpeg");
-    }
-
-    private String getInputMipmapPath(String mipmapGitPath, String mipmap) {
-        return mipmapGitPath + File.separator + "android" + File.separator + mipmap;
-    }
-
-    private String getOutputResPath(Project project) {
-        return project.getBasePath() + File.separator +
-                "app" + File.separator +
-                "src" + File.separator +
-                "main" + File.separator +
-                "res";
-    }
-
-    private String getOutputMipmapPath(Project project, String mipmap) {
-        return getOutputResPath(project) + File.separator + mipmap;
-    }
-
-    private boolean makeDirExist(String path) {
-        File file = new File(path);
-        if (!file.exists()) {
-            return file.mkdirs();
-        }
-
-        return file.isDirectory();
     }
 }

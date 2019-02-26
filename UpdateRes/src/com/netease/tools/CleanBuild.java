@@ -16,6 +16,13 @@ import java.util.List;
  */
 public class CleanBuild extends AnAction {
 
+    private List<String> mLibParentFileNames = new ArrayList<String>() {
+        {
+            add("module");
+            add("businessmodule");
+        }
+    };
+
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
         // TODO: insert action logic here
@@ -37,12 +44,14 @@ public class CleanBuild extends AnAction {
             tryAddBuildFile(basePath + File.separator + "app", buildFiles);
 
             if (dialog.isIncludeModuleProjects()) {
-                String parentPath = basePath + File.separator + "module";
-                File parent = new File(parentPath);
-                if (parent.exists() && parent.isDirectory()) {
-                    File[] moduleFiles = parent.listFiles();
-                    for (File moduleFile : moduleFiles) {
-                        tryAddBuildFile(moduleFile.getAbsolutePath(), buildFiles);
+                for (String parentFileName : mLibParentFileNames) {
+                    String parentPath = basePath + File.separator + parentFileName;
+                    File parent = new File(parentPath);
+                    if (parent.exists() && parent.isDirectory()) {
+                        File[] moduleFiles = parent.listFiles();
+                        for (File moduleFile : moduleFiles) {
+                            tryAddBuildFile(moduleFile.getAbsolutePath(), buildFiles);
+                        }
                     }
                 }
             }

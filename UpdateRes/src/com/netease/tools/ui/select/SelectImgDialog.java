@@ -4,11 +4,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.netease.tools.model.ImgStatus;
 import com.netease.tools.ui.ImagePanel;
-import operation.ImgOperation;
+import com.netease.tools.operation.ImgOperation;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.List;
 
 public class SelectImgDialog extends DialogWrapper implements SelectImgTree.ImgOperationSelectListener {

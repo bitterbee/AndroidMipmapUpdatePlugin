@@ -1,6 +1,7 @@
 package com.netease.tools.ui.select;
 
-import operation.ImgOperation;
+import com.netease.tools.operation.ImgOperation;
+import com.netease.tools.ui.node.*;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
@@ -13,20 +14,20 @@ import java.util.*;
  * Created by zyl06 on 2018/7/22.
  */
 public class SelectImgTree extends JTree implements TreeSelectionListener {
-    private Map<String, CategoryNodeData> mCategoryNodeDatas = new HashMap<String, CategoryNodeData>();
-    private Map<CategoryNodeData, List<ImgOperationNodeData>> mNodeDatas = new HashMap<CategoryNodeData, List<ImgOperationNodeData>>();
+    private Map<String, CategoryNode> mProjectNodes = new HashMap<String, CategoryNode>();
+    private Map<String, CategoryNode> mMipmapNodes = new HashMap<String, CategoryNode>();
+
     private ImgOperationSelectListener mListener;
 
     public SelectImgTree(List<ImgOperation> ops) {
-        DefaultMutableTreeNode top = new DefaultMutableTreeNode("mipmap-root");
-
+        DefaultMutableTreeNode top = new DefaultMutableTreeNode("root");
         createNodes(top, ops);
         setModel(new DefaultTreeModel(top, false));
 
         getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         addTreeSelectionListener(this);
         setCellRenderer(new CheckBoxNodeRenderer());
-        setCellEditor(new CheckBoxNodeEditor(mNodeDatas, this));
+        setCellEditor(new CheckBoxNodeEditor(this));
         expandTree();
     }
 
@@ -45,59 +46,83 @@ public class SelectImgTree extends JTree implements TreeSelectionListener {
             return;
 
         Object nodeInfo = node.getUserObject();
-        if (node.isLeaf() && nodeInfo instanceof ImgOperationNodeData) {
-            ImgOperation img = ((ImgOperationNodeData) nodeInfo).operation;
-            if (mListener != null) {
-                mListener.onImgOperationSelected(img);
+        if (node.isLeaf() && nodeInfo instanceof DataNode) {
+            Data data = ((DataNode) nodeInfo).data();
+            if (data instanceof ImgOperationData) {
+                ImgOperation img = ((ImgOperationData) data).operation;
+                if (mListener != null) {
+                    mListener.onImgOperationSelected(img);
+                }
             }
         }
     }
 
     public List<ImgOperation> getSelectedOps() {
+        List<WrapNode> dataNodes = new ArrayList<WrapNode>();
+        dataNodes.addAll(mMipmapNodes.values());
+        return getSelectedOps(dataNodes);
+    }
+
+    private List<ImgOperation> getSelectedOps(List<WrapNode> nodes) {
         List<ImgOperation> result = new ArrayList<ImgOperation>();
-        for (List<ImgOperationNodeData> v : mNodeDatas.values()) {
-            for (ImgOperationNodeData data : v) {
-                if (data.selected) {
-                    result.add(data.operation);
+        if (nodes == null || nodes.isEmpty()) {
+            return result;
+        }
+
+
+        for (WrapNode node : nodes) {
+            if (node instanceof ImgOperationNode) {
+                DataNode<ImgOperationData> dataNode = node.data();
+                if (dataNode != null && dataNode.data() != null && dataNode.data().selected) {
+                    result.add(dataNode.data().operation);
                 }
+            } else if (node instanceof CategoryNode) {
+                result.addAll(getSelectedOps(node.children()));
             }
         }
         return result;
     }
 
     private void createNodes(DefaultMutableTreeNode top, List<ImgOperation> ops) {
-        Map<String, DefaultMutableTreeNode> categoryMap = new HashMap<String, DefaultMutableTreeNode>();
+
+        CategoryNode topNode = new CategoryNode(top);
+
         for (ImgOperation op : ops) {
             if (op.toPath() == null) {
                 continue;
             }
-            File file = new File(op.toPath());
+            String proj = op.projPath();
 
-            String categoryName = file.getParentFile().getName();
-            String imgName = file.getName();
+            CategoryNode projNode = mProjectNodes.get(proj);
+            if (projNode == null) {
+                projNode = new CategoryNode(proj, false);
+                topNode.add(projNode);
 
-            DefaultMutableTreeNode categoryNode = categoryMap.get(categoryName);
-            CategoryNodeData cnd = mCategoryNodeDatas.get(categoryName);
-            if (categoryNode == null) {
-                boolean selected = true;
-
-                cnd = new CategoryNodeData(categoryName, selected);
-                categoryNode = new DefaultMutableTreeNode(cnd);
-                categoryMap.put(categoryName, categoryNode);
-                top.add(categoryNode);
-
-                mCategoryNodeDatas.put(categoryName, cnd);
-                mNodeDatas.put(cnd, new ArrayList<ImgOperationNodeData>());
+                mProjectNodes.put(proj, projNode);
             }
 
-            boolean selected = true;
-            ImgOperationNodeData iond = new ImgOperationNodeData(op, selected);
-            DefaultMutableTreeNode imgNode = new DefaultMutableTreeNode(iond);
-            categoryNode.add(imgNode);
 
-            List<ImgOperationNodeData> ionds = mNodeDatas.get(cnd);
-            ionds.add(iond);
+            File file = new File(op.toPath());
+
+            String mipmapName = file.getParentFile().getName();
+            String imgName = file.getName();
+
+            String mipmapKey = mipmapKey(proj, mipmapName);
+            CategoryNode mipmapNode = mMipmapNodes.get(mipmapKey);
+            if (mipmapNode == null) {
+                mipmapNode = new CategoryNode(mipmapName, false);
+                mMipmapNodes.put(mipmapKey, mipmapNode);
+
+                projNode.add(mipmapNode);
+            }
+
+            ImgOperationNode ion = new ImgOperationNode(op, false);
+            mipmapNode.add(ion);
         }
+    }
+
+    private String mipmapKey(String proj, String mipmapName) {
+        return proj + "-" + mipmapName;
     }
 
     public void expandTree() {

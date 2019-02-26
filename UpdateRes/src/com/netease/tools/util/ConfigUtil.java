@@ -12,23 +12,23 @@ import java.util.Map;
 public class ConfigUtil {
     private static final Map<String, String> mConfig = new HashMap<String, String>();
 
-    public static String getGitPath() {
+    public static String getGitCmdPath() {
         return getConfig("git");
     }
 
-    public static void setGitPath(String path) {
+    public static void setGitCmdPath(String path) {
         if (!TextUtils.isEmpty(path)) {
             setConfig("git", path);
         }
     }
 
     public static String getMipmapGitPath() {
-        return getConfig("mipmap_git_path");
+        return getConfig("mipmap_path");
     }
 
     public static void setMipmapGitPath(String path) {
         if (!TextUtils.isEmpty(path)) {
-            setConfig("mipmap_git_path", path);
+            setConfig("mipmap_path", path);
         }
     }
 
