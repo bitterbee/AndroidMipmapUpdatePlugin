@@ -1,6 +1,7 @@
 package com.netease.tools.operation;
 
 import com.intellij.openapi.project.Project;
+import com.netease.tools.util.ImageUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -72,7 +73,6 @@ abstract class BaseImgOperationFactory {
     }
 
     protected boolean isPhoto(String path) {
-        return path != null &&
-                (path.endsWith(".png") || path.endsWith(".jpg") || path.endsWith(".jpeg"));
+        return ImageUtil.isImage(path);
     }
 }

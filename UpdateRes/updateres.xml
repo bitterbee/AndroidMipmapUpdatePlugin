@@ -55,10 +55,10 @@
     <exclude name="**/?*.clj"/>
     <exclude name="**/?*.aj"/>
   </patternset>
-  
+
   <!-- JDK definitions -->
-  
   <property name="jdk.bin.intellij_idea_community_edition_ic-145.1617.8" value="${jdk.home.intellij_idea_community_edition_ic-145.1617.8}/../../../Library/Java/JavaVirtualMachines/jdk1.8.0.jdk/Contents/Home/bin"/>
+
   <path id="jdk.classpath.intellij_idea_community_edition_ic-145.1617.8">
     <fileset dir="${jdk.home.intellij_idea_community_edition_ic-145.1617.8}">
       <include name="../../../Library/Java/JavaVirtualMachines/jdk1.8.0.jdk/Contents/Home/jre/lib/charsets.jar"/>

@@ -1,6 +1,7 @@
 package com.netease.tools.ui;
 
 import com.netease.tools.model.ImgStatus;
+import com.netease.tools.ui.image.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +15,7 @@ public class ImagePanel extends JPanel {
 
     private Image image = null;
     private Color color = Color.BLACK;
+    private ComposedImg imageGenerator;
 
     private static Map<ImgStatus, Color> COLOR_MAP = new HashMap<ImgStatus, Color>() {
         {
@@ -24,12 +26,17 @@ public class ImagePanel extends JPanel {
     };
 
     public ImagePanel() {
+        imageGenerator = new ComposedImg()
+                .add(new Png())
+                .add(new Jpeg())
+                .add(new WebP())
+                .add(new Svg());
         setBackground(new Color(212, 212, 212));
     }
 
     public void setImgPath(String path, ImgStatus status) {
         if (path != null) {
-            this.image = new ImageIcon(path, "preview").getImage();
+            this.image = imageGenerator.getImage(path);
             color = COLOR_MAP.get(status);
             if (color == null) {
                 color = Color.BLACK;

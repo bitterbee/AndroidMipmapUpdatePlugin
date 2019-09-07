@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
-import com.netease.tools.model.ImgStatus;
+import com.netease.tools.operation.ImgOperation;
 import com.netease.tools.operation.RemoveImgOperationFactory;
 import com.netease.tools.operation.UpdateImgOperationFactory;
 import com.netease.tools.ui.select.SelectImgDialog;
@@ -14,7 +14,6 @@ import com.netease.tools.util.CommandUtil;
 import com.netease.tools.util.ConfigUtil;
 import com.netease.tools.util.Fio;
 import com.netease.tools.util.ProjectUtil;
-import com.netease.tools.operation.ImgOperation;
 import org.apache.http.util.TextUtils;
 
 import java.io.File;

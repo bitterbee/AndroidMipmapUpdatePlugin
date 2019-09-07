@@ -12,6 +12,36 @@ import java.security.MessageDigest;
  * Created by icy on 16/7/18.
  */
 public class Fio {
+
+    public static byte[] read(String filePath) {
+        return read(new File(filePath));
+    }
+
+    public static byte[] read(File file) {
+        if (file == null || !file.exists()) {
+            return null;
+        }
+
+        InputStream is = null;
+        ByteArrayOutputStream os = null;
+        try {
+            is = new FileInputStream(file);
+            os = new ByteArrayOutputStream(is.available() + 16);
+            byte[] tmp = new byte[4096];
+            int length = 0;
+            while ((length = is.read(tmp)) > 0) {
+                os.write(tmp, 0, length);
+            }
+            return os.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            safeClose(os);
+            safeClose(is);
+        }
+    }
+
     /*
      * read file to buffer
      */
